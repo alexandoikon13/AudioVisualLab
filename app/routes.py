@@ -41,22 +41,28 @@ def init_routes(app):
         except Exception as e:
             app.logger.error('Failed to upload file', exc_info=e)
             return "Internal Server Error", 500
-        
+########################################################################
+#########################  START TODO ##################################       
     @app.route('/convert', methods=['POST'])
     def convert():
         # Handle file upload and call convert_audio_format
         # ...
+        return None
 
     @app.route('/crossfade', methods=['POST'])
     def crossfade_audio():
         # Implement logic for crossfading two audio files
         # ...
+        return None
 
     @app.route('/smooth_edges', methods=['POST'])
     def smooth_audio_edges():
         # Implement logic for smoothing edges of an audio file
         # ...
-    
+        return None
+
+#########################  END TODO ##################################
+########################################################################   
     @app.route('/convert', methods=['POST'])
     def convert():
         file = request.files['file']
