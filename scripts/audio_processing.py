@@ -31,7 +31,7 @@ def smooth_edges(audio, edge_samples):
 
 # Function to convert an audio file format
 def convert_audio_format(input_path, output_format):
-    audio, sr = librosa.load(input_path, sr=None)
+    audio, sr = librosa.load(input_path, sr=None)  # sr=None to keep original sample rate
     output_path = os.path.splitext(input_path)[0] + '.' + output_format
     sf.write(output_path, audio, sr, format=output_format)
     return output_path

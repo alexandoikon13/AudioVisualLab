@@ -22,11 +22,16 @@ def init_routes(app):
         filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
         file.save(filepath)
 
+        # Test if the file was uploaded successfully to the Heroku server
+        if not os.path.exists(filepath):
+            print(f"File not found at {filepath}")
+        else:
+            print(f"File saved at {filepath}")
+
         audio, sr = load_audio(filepath)
         processed_audio = None
 
         if action == 'crossfade':
-            # Example: crossfade with itself for demonstration
             processed_audio = crossfade(audio, audio, int(0.5 * sr))  # 0.5 seconds crossfade
         elif action == 'smooth_edges':
             processed_audio = smooth_edges(audio, int(0.1 * sr))  # 0.1 seconds smoothing at edges
