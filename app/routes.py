@@ -46,6 +46,7 @@ def init_routes(app):
         filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
         file.save(filepath)
         output_path = convert_audio_format(filepath, target_format)
+        print("Saved file at:", output_path)  # Log the file path
 
         return send_file(output_path, as_attachment=True)
 
