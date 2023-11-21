@@ -16,24 +16,28 @@ def init_routes(app):
 
     @app.route('/handle_upload', methods=['POST'])  # Changed to a different endpoint
     def handle_upload():
-        if 'file' not in request.files:
-            return "No file part", 400
-        file = request.files['file']
-        if file.filename == '':
-            return "No selected file", 400
-        if file:
-            filename = secure_filename(file.filename)
-            filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
-            file.save(filepath)
+        try:
+            if 'file' not in request.files:
+                return "No file part", 400
+            file = request.files['file']
+            if file.filename == '':
+                return "No selected file", 400
+            if file:
+                filename = secure_filename(file.filename)
+                filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+                file.save(filepath)
 
-            # Process the file
-            processed_file_path = convert_audio(filepath)
+                # Process the file
+                processed_file_path = convert_audio(filepath)
 
-            # Save file metadata to MongoDB
-            file_metadata = {
-                "original_filename": filename,
-                "processed_filepath": processed_file_path
-            }
-            app.db.files.insert_one(file_metadata)
+                # Save file metadata to MongoDB
+                file_metadata = {
+                    "original_filename": filename,
+                    "processed_filepath": processed_file_path
+                }
+                app.db.files.insert_one(file_metadata)
 
-            return "File uploaded and processed", 200
+                return "File uploaded and processed", 200
+        except Exception as e:
+            app.logger.error('Failed to upload file', exc_info=e)
+            return "Internal Server Error", 500
