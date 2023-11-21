@@ -115,8 +115,12 @@ def init_routes(app):
 
     @app.route('/some_route', methods=['POST'])
     def some_route():
-        # After processing the file
-        processed_file_path = process_and_save_audio(uploaded_file)
+        file = request.files['file']  # Retrieve the uploaded file
+        # Assuming the file content is what needs to be processed and saved
+        file_content = file.read()
+
+        # Process and save the file content
+        processed_file_path = process_and_save_audio(file_content)
 
         # Now send this file back
         return send_file(processed_file_path, as_attachment=True)
