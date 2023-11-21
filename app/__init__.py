@@ -11,6 +11,7 @@ def create_app():
     app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
     # MongoDB setup
+    mongo_uri = os.getenv('MONGO_URI')
     mongo_client = MongoClient('mongodb://localhost:27017/')  # Update with your URI
     db = mongo_client.Cluster0
     app.db = db
