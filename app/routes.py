@@ -2,6 +2,7 @@ from flask import render_template, request, send_from_directory, jsonify, redire
 from werkzeug.utils import secure_filename  # Import secure_filename
 from scripts.audio_processing import load_audio, save_audio, crossfade, smooth_edges, convert_audio_format
 from datetime import datetime
+import gridfs
 import os
 
 def init_routes(app):
@@ -33,13 +34,19 @@ def init_routes(app):
         processed_filename = 'processed_' + filename
         processed_filepath = os.path.join(app.config['UPLOAD_FOLDER'], processed_filename)
         save_audio(processed_audio, sr, processed_filepath)
+
+        # Store the processed file in GridFS
+        fs = gridfs.GridFS(app.db)
+        with open(processed_filepath, 'rb') as processed_file:
+            file_id = fs.put(processed_file, filename=processed_filename)
         
         # Store file metadata in MongoDB
         file_metadata = {
         'original_filename': filename,
         'processed_filename': processed_filename,
         'processing_type': action,
-        'processed_datetime': datetime.utcnow()
+        'processed_datetime': datetime.utcnow(),
+        'gridfs_id': file_id
         }
         app.db.files.insert_one(file_metadata)
 
