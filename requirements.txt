@@ -2,3 +2,6 @@ Flask
 pymongo
 pydub
 gunicorn
+librosa
+soundfile
+numpy

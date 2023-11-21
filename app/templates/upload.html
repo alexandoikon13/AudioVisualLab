@@ -1,13 +1,33 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>File Upload</title>
+    <title>Audio Processing</title>
 </head>
 <body>
-    <h1>Upload Audio/Image File</h1>
-    <form action="/handle_upload" method="post" enctype="multipart/form-data">
-        <input type="file" name="file" id="file">
-        <input type="submit" value="Upload">
+    <h1>Audio Processing Options</h1>
+
+    <!-- Form for Audio Conversion -->
+    <form action="/convert" method="post" enctype="multipart/form-data">
+        <h2>Convert Audio Format</h2>
+        <input type="file" name="file" required>
+        <select name="format">
+            <option value="wav">WAV</option>
+            <option value="mp3">MP3</option>
+            <!-- Add other formats -->
+        </select>
+        <input type="submit" value="Convert">
     </form>
+
+    <!-- Form for Crossfade -->
+    <form action="/crossfade" method="post" enctype="multipart/form-data">
+        <h2>Crossfade Audio</h2>
+        <input type="file" name="file1" required>
+        <input type="file" name="file2" required>
+        <input type="number" name="crossfade_duration" placeholder="Crossfade Duration (s)">
+        <input type="submit" value="Apply Crossfade">
+    </form>
+
+    <!-- Additional forms for other functionalities -->
+
 </body>
 </html>

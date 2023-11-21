@@ -1,6 +1,6 @@
-from flask import render_template, request, send_from_directory, jsonify, redirect, url_for
+from flask import render_template, request, send_from_directory, send_file, jsonify, redirect, url_for
 from werkzeug.utils import secure_filename  # Import secure_filename
-from scripts.audio_processing import convert_audio
+from scripts.audio_processing import load_audio, save_audio, crossfade, logarithmic_crossfade, smooth_edges
 import os
 
 def init_routes(app):
@@ -28,7 +28,7 @@ def init_routes(app):
                 file.save(filepath)
 
                 # Process the file
-                processed_file_path = convert_audio(filepath)
+                processed_file_path = convert_audio_format(filepath)
 
                 # Save file metadata to MongoDB
                 file_metadata = {
@@ -41,3 +41,32 @@ def init_routes(app):
         except Exception as e:
             app.logger.error('Failed to upload file', exc_info=e)
             return "Internal Server Error", 500
+        
+    @app.route('/convert', methods=['POST'])
+    def convert():
+        # Handle file upload and call convert_audio_format
+        # ...
+
+    @app.route('/crossfade', methods=['POST'])
+    def crossfade_audio():
+        # Implement logic for crossfading two audio files
+        # ...
+
+    @app.route('/smooth_edges', methods=['POST'])
+    def smooth_audio_edges():
+        # Implement logic for smoothing edges of an audio file
+        # ...
+    
+    @app.route('/convert', methods=['POST'])
+    def convert():
+        file = request.files['file']
+        target_format = request.form['format']
+        filename = secure_filename(file.filename)
+        input_path = os.path.join(UPLOAD_FOLDER, filename)
+        file.save(input_path)
+        
+        output_path = os.path.splitext(input_path)[0] + '.' + target_format
+        convert_audio_format(input_path, output_path)
+        
+        return send_file(output_path, as_attachment=True)
+
