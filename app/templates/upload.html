@@ -28,6 +28,17 @@
     </form>
 
     <!-- Additional forms for other functionalities -->
+    
+    <form action="/handle_upload" method="post" enctype="multipart/form-data">
+        <input type="file" name="file" required>
+        <select name="action">
+            <option value="crossfade">Crossfade</option>
+            <option value="smooth_edges">Smooth Edges</option>
+            <!-- More actions -->
+        </select>
+        <input type="submit" value="Upload and Process">
+    </form>
+    
 
 </body>
 </html>
