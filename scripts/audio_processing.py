@@ -28,4 +28,9 @@ def smooth_edges(audio, edge_samples):
         audio[-edge_samples:] *= fade_out
     return audio
 
-# Add other processing functions as needed
+# Function to convert an audio file format
+def convert_audio_format(input_path, output_format):
+    audio, sr = librosa.load(input_path, sr=None)
+    output_path = os.path.splitext(input_path)[0] + '.' + output_format
+    sf.write(output_path, audio, sr, format=output_format)
+    return output_path
