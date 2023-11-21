@@ -1,6 +1,8 @@
 import librosa
 import soundfile as sf
 import numpy as np
+import tempfile
+from flask import current_app
 import os
 
 # Function to load an audio file
@@ -35,3 +37,9 @@ def convert_audio_format(input_path, output_format):
     output_path = os.path.splitext(input_path)[0] + '.' + output_format
     sf.write(output_path, audio, sr, format=output_format)
     return output_path
+
+# Function to process and save the audio file to temp_file
+def process_and_save_audio(input_audio):
+    with tempfile.NamedTemporaryFile(delete=False, dir=current_app.config['UPLOAD_FOLDER']) as temp_file:
+        temp_file.write(input_audio)
+        return temp_file.name

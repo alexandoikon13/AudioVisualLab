@@ -112,3 +112,12 @@ def init_routes(app):
         save_audio(smoothed_audio, sr, output_filepath)
 
         return send_file(output_filepath, as_attachment=True)
+
+    @app.route('/some_route', methods=['POST'])
+    def some_route():
+        # After processing the file
+        processed_file_path = process_and_save_audio(uploaded_file)
+
+        # Now send this file back
+        return send_file(processed_file_path, as_attachment=True)
+    
