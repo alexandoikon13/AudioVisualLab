@@ -16,31 +16,26 @@ def init_routes(app):
 
     @app.route('/handle_upload', methods=['POST'])  # Changed to a different endpoint
     def handle_upload():
-        try:
-            if 'file' not in request.files:
-                return "No file part", 400
-            file = request.files['file']
-            if file.filename == '':
-                return "No selected file", 400
-            if file:
-                filename = secure_filename(file.filename)
-                filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
-                file.save(filepath)
+        file = request.files['file']
+        action = request.form.get('action')
 
-                # Process the file
-                processed_file_path = convert_audio_format(filepath)
+        filename = secure_filename(file.filename)
+        filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+        file.save(filepath)
 
-                # Save file metadata to MongoDB
-                file_metadata = {
-                    "original_filename": filename,
-                    "processed_filepath": processed_file_path
-                }
-                app.db.files.insert_one(file_metadata)
+        # Process the file based on selected action
+        if action == 'crossfade':
+            # Call crossfade function
+            # ...
+            pass    #TO DELETE
+        elif action == 'smooth_edges':
+            # Call smooth_edges function
+            # ...
+            pass    #TO DELETE
 
-                return "File uploaded and processed", 200
-        except Exception as e:
-            app.logger.error('Failed to upload file', exc_info=e)
-            return "Internal Server Error", 500
+        processed_filepath = "path_to_processed_file"
+        return send_from_directory(app.config['UPLOAD_FOLDER'], processed_filepath)
+
 ########################################################################
 #########################  START TODO ##################################       
     @app.route('/convert', methods=['POST'])
