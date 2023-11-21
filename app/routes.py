@@ -1,6 +1,6 @@
 from flask import render_template, request, send_from_directory, jsonify, redirect, send_file, url_for
 from werkzeug.utils import secure_filename  # Import secure_filename
-from scripts.audio_processing import load_audio, save_audio, crossfade, smooth_edges, convert_audio_format
+from scripts.audio_processing import load_audio, save_audio, crossfade, smooth_edges, convert_audio_format, process_and_save_audio
 from datetime import datetime
 import gridfs
 import os
