@@ -1,6 +1,7 @@
 from flask import render_template, request, send_from_directory, jsonify, redirect, send_file, url_for
 from werkzeug.utils import secure_filename  # Import secure_filename
 from scripts.audio_processing import load_audio, save_audio, crossfade, smooth_edges, convert_audio_format
+from datetime import datetime
 import os
 
 def init_routes(app):
@@ -32,6 +33,15 @@ def init_routes(app):
         processed_filename = 'processed_' + filename
         processed_filepath = os.path.join(app.config['UPLOAD_FOLDER'], processed_filename)
         save_audio(processed_audio, sr, processed_filepath)
+        
+        # Store file metadata in MongoDB
+        file_metadata = {
+        'original_filename': filename,
+        'processed_filename': processed_filename,
+        'processing_type': action,
+        'processed_datetime': datetime.utcnow()
+        }
+        app.db.files.insert_one(file_metadata)
 
         return send_from_directory(app.config['UPLOAD_FOLDER'], processed_filename, as_attachment=True)
     
