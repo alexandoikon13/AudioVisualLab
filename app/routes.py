@@ -64,8 +64,18 @@ def init_routes(app):
         filename = secure_filename(file.filename)
         filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
         file.save(filepath)
+
+        # Debug: Check if file exists after saving
+        if not os.path.exists(filepath):
+            print("File not saved correctly:", filepath)
+            return "Error: File not saved correctly", 500
+
         output_path = convert_audio_format(filepath, target_format)
-        print("Saved file at:", output_path)  # Log the file path
+        
+        # Debug: Check if output file exists
+        if not os.path.exists(output_path):
+            print("Converted file not found:", output_path)
+            return "Error: Converted file not found", 500
 
         return send_file(output_path, as_attachment=True)
 
