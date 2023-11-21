@@ -34,10 +34,7 @@ def init_routes(app):
         save_audio(processed_audio, sr, processed_filepath)
 
         return send_from_directory(app.config['UPLOAD_FOLDER'], processed_filename, as_attachment=True)
-
-
-########################################################################
-#########################  START TODO ##################################       
+    
     @app.route('/convert', methods=['POST'])
     def convert():
         file = request.files['file']
