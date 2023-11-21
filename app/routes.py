@@ -1,6 +1,6 @@
-from flask import render_template, request, send_from_directory, jsonify, redirect, url_for
+from flask import render_template, request, send_from_directory, jsonify, redirect, send_file, url_for
 from werkzeug.utils import secure_filename  # Import secure_filename
-from scripts.audio_processing import load_audio, save_audio, crossfade, smooth_edges
+from scripts.audio_processing import load_audio, save_audio, crossfade, smooth_edges, convert_audio_format
 import os
 
 def init_routes(app):
@@ -40,25 +40,55 @@ def init_routes(app):
 #########################  START TODO ##################################       
     @app.route('/convert', methods=['POST'])
     def convert():
-        # Handle file upload and call convert_audio_format
-        # ...
-        return None
+        file = request.files['file']
+        target_format = request.form['format']
+        filename = secure_filename(file.filename)
+        filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+        file.save(filepath)
+        output_path = convert_audio_format(filepath, target_format)
+
+        return send_file(output_path, as_attachment=True)
 
     @app.route('/crossfade', methods=['POST'])
     def crossfade_audio():
-        # Ensure all lines within this function are indented at the same level
-        if 'file1' in request.files and 'file2' in request.files:
-            # Further code for handling crossfade
-            pass  # Replace with actual code
+        file1 = request.files['file1']
+        file2 = request.files['file2']
+        crossfade_duration = float(request.form.get('crossfade_duration', 1.0))
 
-        # More code or return statement
-        return "Crossfade processed"
+        filename1 = secure_filename(file1.filename)
+        filepath1 = os.path.join(app.config['UPLOAD_FOLDER'], filename1)
+        file1.save(filepath1)
+
+        filename2 = secure_filename(file2.filename)
+        filepath2 = os.path.join(app.config['UPLOAD_FOLDER'], filename2)
+        file2.save(filepath2)
+
+        audio1, sr = load_audio(filepath1)
+        audio2, _ = load_audio(filepath2)
+        crossfade_samples = int(sr * crossfade_duration)
+        crossfaded_audio = crossfade(audio1, audio2, crossfade_samples)
+
+        output_filename = 'crossfaded_' + filename1
+        output_filepath = os.path.join(app.config['UPLOAD_FOLDER'], output_filename)
+        save_audio(crossfaded_audio, sr, output_filepath)
+
+        return send_file(output_filepath, as_attachment=True)
 
     @app.route('/smooth_edges', methods=['POST'])
     def smooth_audio_edges():
-        # Implement logic for smoothing edges of an audio file
-        # ...
-        return None
+        file = request.files['file']
+        edge_duration = float(request.form.get('edge_duration', 0.5))
 
-#########################  END TODO ##################################
-########################################################################   
+        filename = secure_filename(file.filename)
+        filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+        file.save(filepath)
+
+        audio, sr = load_audio(filepath)
+        edge_samples = int(sr * edge_duration)
+        smoothed_audio = smooth_edges(audio, edge_samples)
+
+        output_filename = 'smoothed_' + filename
+        output_filepath = os.path.join(app.config['UPLOAD_FOLDER'], output_filename)
+        save_audio(smoothed_audio, sr, output_filepath)
+
+        return send_file(output_filepath, as_attachment=True)
