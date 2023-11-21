@@ -17,5 +17,6 @@ EXPOSE 5000
 #ENV MONGO_URI=""
 
 # Run app.py using gunicorn when the container launches
-CMD ["gunicorn", "-b", "0.0.0.0:5000", "run:app"]
+# CMD ["gunicorn", "-b", "0.0.0.0:5000", "run:app"]
+CMD ["gunicorn", "-b", "0.0.0.0:$PORT", "run:app"]
 
