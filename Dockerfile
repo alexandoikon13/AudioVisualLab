@@ -14,7 +14,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 EXPOSE 5000
 
 # Define environment variable for MongoDB URI
-ENV MONGO_URI=""
+#ENV MONGO_URI=""
 
 # Run app.py using gunicorn when the container launches
 CMD ["gunicorn", "-b", "0.0.0.0:5000", "run:app"]
