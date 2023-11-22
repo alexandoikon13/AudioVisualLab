@@ -12,11 +12,15 @@ def load_audio(file_content):
     return audio, sr
 
 # Function to save an audio file
-def save_audio(audio, sample_rate, format):
-    # Save audio to a BytesIO object and return its content
+def save_audio(audio, sample_rate, format='wav'):
     with io.BytesIO() as buffer:
+        # Ensure audio data is in the correct shape
+        if len(audio.shape) == 1:  # Mono audio
+            audio = np.expand_dims(audio, axis=-1)
+        # Save audio to a BytesIO object and return its content
         sf.write(buffer, audio, sample_rate, format=format)
         return buffer.getvalue()
+
 
 # Function to convert an audio file format
 def convert_audio_format(file_content, output_format):
