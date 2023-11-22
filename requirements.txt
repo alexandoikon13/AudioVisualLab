@@ -1,6 +1,7 @@
 Flask
-pymongo
-gunicorn
+pymongo     #interacting with MongoDB
+gunicorn    #deploying the app in production
 librosa
 soundfile
 numpy
+boto3   #interacting with AWS S3 Bucket
