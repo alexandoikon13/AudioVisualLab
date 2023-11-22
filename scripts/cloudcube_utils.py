@@ -23,7 +23,12 @@ def get_cloudcube_file_url(filename):
     parsed_url = urlparse(os.environ.get('CLOUDCUBE_URL'))
     bucket_name = parsed_url.netloc.split('.')[0]
 
-    s3_client = boto3.client('s3')
+    s3_client = boto3.client(
+        's3',
+        aws_access_key_id=os.environ.get('CLOUDCUBE_ACCESS_KEY_ID'),
+        aws_secret_access_key=os.environ.get('CLOUDCUBE_SECRET_ACCESS_KEY')
+    )
+    
     file_url = s3_client.generate_presigned_url('get_object',
                                                 Params={'Bucket': bucket_name,
                                                         'Key': f"{parsed_url.path[1:]}/{filename}"},
