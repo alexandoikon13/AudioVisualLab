@@ -5,3 +5,4 @@ librosa
 soundfile
 numpy
 boto3   #interacting with AWS S3 Bucket
+# python-dotenv   #interacting with Flask with .env variables
