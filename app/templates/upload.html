@@ -6,45 +6,46 @@
 <body>
     <h1>Audio Processing Options</h1>
 
-    <!-- Form for Audio Conversion -->
-    <form action="/convert" method="post" enctype="multipart/form-data">
-        <h2>Convert Audio Format</h2>
+    <form action="/process_file" method="post" enctype="multipart/form-data">
+        <h2>Upload and Process Audio File</h2>
         <input type="file" name="file" required>
-        <select name="format">
-            <option value="wav">WAV</option>
-            <option value="mp3">MP3</option>
-            <!-- Add other formats -->
-        </select>
-        <input type="submit" value="Convert">
-    </form>
-
-    <!-- Form for Crossfade -->
-    <form action="/crossfade" method="post" enctype="multipart/form-data">
-        <h2>Crossfade Audio</h2>
-        <input type="file" name="file1" required>
-        <input type="file" name="file2" required>
-        <input type="number" name="crossfade_duration" placeholder="Crossfade Duration (s)">
-        <input type="submit" value="Apply Crossfade">
-    </form>
-
-    <!-- Form for Smoothing Edges -->
-    <form action="/smooth_edges" method="post" enctype="multipart/form-data">
-        <h2>Smooth Audio Edges</h2>
-        <input type="file" name="file" required>
-        <input type="number" name="edge_duration" placeholder="Edge Duration (s)">
-        <input type="submit" value="Smooth Edges">
-    </form>
-
-    <!-- Form for How to Process Uploaded File -->
-    <form action="/handle_upload" method="post" enctype="multipart/form-data">
-        <input type="file" name="file" required>
-        <select name="action">
+        <select name="action" id="action-select">
+            <option value="convert">Convert Format</option>
             <option value="crossfade">Crossfade</option>
             <option value="smooth_edges">Smooth Edges</option>
-            <!-- More actions -->
         </select>
-        <input type="submit" value="Upload and Process">
+
+        <!-- Convert Format Options -->
+        <div id="convert-options" style="display:none;">
+            <select name="format">
+                <option value="wav">WAV</option>
+                <option value="mp3">MP3</option>
+                <option value="flac">FLAC</option>
+                <!-- Add other formats -->
+            </select>
+        </div>
+
+        <!-- Crossfade Options -->
+        <div id="crossfade-options" style="display:none;">
+            <input type="number" name="crossfade_duration" placeholder="Crossfade Duration (s)">
+        </div>
+
+        <!-- Input for specifying edge smoothing duration -->
+        <div id="smooth-options" style="display:none;">
+            <input type="number" name="edge_duration" placeholder="Edge Duration (s)">
+        </div>
+
+        <input type="submit" value="Process">
     </form>
-    
+
+    <script>
+        document.getElementById('action-select').addEventListener('change', function() {
+            var action = this.value;
+            document.getElementById('convert-options').style.display = action == 'convert' ? 'block' : 'none';
+            document.getElementById('crossfade-options').style.display = action == 'crossfade' ? 'block' : 'none';
+            document.getElementById('smooth-options').style.display = action == 'smooth_edges' ? 'block' : 'none';
+        });
+    </script>
+
 </body>
 </html>

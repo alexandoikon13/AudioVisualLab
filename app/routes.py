@@ -1,6 +1,6 @@
 from flask import render_template, request, jsonify, redirect, url_for
 from werkzeug.utils import secure_filename  # Import secure_filename
-from scripts.audio_processing import load_audio, save_audio, crossfade, smooth_edges, convert_audio_format, process_and_save_audio
+from scripts.audio_processing import load_audio, save_audio, crossfade, smooth_edges, convert_audio_format
 from scripts.cloudcube_utils import upload_file_to_cloudcube, get_cloudcube_file_url
 from datetime import datetime
 import os
