@@ -1,84 +1,96 @@
-from flask import render_template, request, send_from_directory, jsonify, redirect, send_file, url_for
+from flask import render_template, request, jsonify, redirect, url_for
 from werkzeug.utils import secure_filename  # Import secure_filename
 from scripts.audio_processing import load_audio, save_audio, crossfade, smooth_edges, convert_audio_format, process_and_save_audio
 from scripts.cloudcube_utils import upload_file_to_cloudcube, get_cloudcube_file_url
 from datetime import datetime
-import gridfs
 import os
 
 def init_routes(app):
+
     @app.route('/')
     def index():
         return redirect(url_for('upload'))
 
+
     @app.route('/upload')
     def upload():
         return render_template('upload.html')
+
 
     @app.route('/handle_upload', methods=['POST'])
     def handle_upload():
         file = request.files['file']
         action = request.form.get('action')
         filename = secure_filename(file.filename)
-        filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
-        file.save(filepath)
+        file_content = file.read()
 
-        # Test if the file was uploaded successfully to the Heroku server
-        if not os.path.exists(filepath):
-            print(f"File not found at {filepath}")
-        else:
-            print(f"File saved at {filepath}")
+        # Upload original file to Cloudcube & Retrieve URL
+        upload_file_to_cloudcube(file_content, filename, file.content_type)
+        file_url = get_cloudcube_file_url(filename)
 
-        audio, sr = load_audio(filepath)
+        # Process the file based on the action
+        audio, sr = load_audio(file_content)
         processed_audio = None
-
         if action == 'crossfade':
             processed_audio = crossfade(audio, audio, int(0.5 * sr))  # 0.5 seconds crossfade
         elif action == 'smooth_edges':
-            processed_audio = smooth_edges(audio, int(0.1 * sr))  # 0.1 seconds smoothing at edges
+            processed_audio = smooth_edges(audio, int(0.1 * sr))
+        else:
+            # If no action, return original file URL
+            return jsonify({"message": "File uploaded successfully! No action was taken!", "url": file_url})
 
+        # Save processed audio and upload to Cloudcube
         processed_filename = 'processed_' + filename
-        processed_filepath = os.path.join(app.config['UPLOAD_FOLDER'], processed_filename)
-        save_audio(processed_audio, sr, processed_filepath)
+        processed_file_content = save_audio(processed_audio, sr)
+        upload_file_to_cloudcube(processed_file_content, processed_filename, 'audio/wav')  # TODO: Adjust MIME type and more types
+        processed_file_url = get_cloudcube_file_url(processed_filename)
 
-        # After saving the file locally
-        with open(filepath, 'rb') as file:
-            file_content = file.read()
-            upload_file_to_cloudcube(file_content, filename, file.content_type)
-        
         # Store file metadata in MongoDB
         file_metadata = {
-        'original_filename': filename,
-        'processed_filename': processed_filename,
-        'processing_type': action,
-        'processed_datetime': datetime.utcnow(),
-        'gridfs_id': file_id
+            'original_filename': filename,
+            'processed_filename': processed_filename,
+            'processing_type': action,
+            'processed_datetime': datetime.utcnow(),
+            'original_file_url': file_url,
+            'processed_file_url': processed_file_url
         }
         app.db.files.insert_one(file_metadata)
 
-        return send_from_directory(app.config['UPLOAD_FOLDER'], processed_filename, as_attachment=True)
-    
+        return jsonify({"message": "File processed and uploaded successfully", "url": processed_file_url})
+
+
     @app.route('/convert', methods=['POST'])
     def convert():
         file = request.files['file']
         target_format = request.form['format']
         filename = secure_filename(file.filename)
-        filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
-        file.save(filepath)
+        file_content = file.read()
 
-        # Debug: Check if file exists after saving
-        if not os.path.exists(filepath):
-            print("File not saved correctly:", filepath)
-            return "Error: File not saved correctly", 500
+        # Upload original file to Cloudcube
+        upload_file_to_cloudcube(file_content, filename, file.content_type)
+        original_file_url = get_cloudcube_file_url(filename)
 
-        output_path = convert_audio_format(filepath, target_format)
-        
-        # Debug: Check if output file exists
-        if not os.path.exists(output_path):
-            print("Converted file not found:", output_path)
-            return "Error: Converted file not found", 500
+        # Convert the file format
+        converted_content = convert_audio_format(file_content, target_format)
+        converted_filename = os.path.splitext(filename)[0] + '.' + target_format
 
-        return send_file(output_path, as_attachment=True)
+        # Upload converted file to Cloudcube
+        upload_file_to_cloudcube(converted_content, converted_filename, 'audio/' + target_format)  # Adjust MIME type accordingly
+        converted_file_url = get_cloudcube_file_url(converted_filename)
+
+        # Store file metadata in MongoDB
+        file_metadata = {
+            'original_filename': filename,
+            'converted_filename': converted_filename,
+            'conversion_format': target_format,
+            'converted_datetime': datetime.utcnow(),
+            'original_file_url': original_file_url,
+            'converted_file_url': converted_file_url
+        }
+        app.db.files.insert_one(file_metadata)
+
+        return jsonify({"message": "File converted and uploaded successfully", "url": converted_file_url})
+
 
     @app.route('/crossfade', methods=['POST'])
     def crossfade_audio():
@@ -87,23 +99,38 @@ def init_routes(app):
         crossfade_duration = float(request.form.get('crossfade_duration', 1.0))
 
         filename1 = secure_filename(file1.filename)
-        filepath1 = os.path.join(app.config['UPLOAD_FOLDER'], filename1)
-        file1.save(filepath1)
+        file_content1 = file1.read()
+        upload_file_to_cloudcube(file_content1, filename1, file1.content_type)
 
         filename2 = secure_filename(file2.filename)
-        filepath2 = os.path.join(app.config['UPLOAD_FOLDER'], filename2)
-        file2.save(filepath2)
+        file_content2 = file2.read()
+        upload_file_to_cloudcube(file_content2, filename2, file2.content_type)
 
-        audio1, sr = load_audio(filepath1)
-        audio2, _ = load_audio(filepath2)
-        crossfade_samples = int(sr * crossfade_duration)
+        audio1, sr1 = load_audio(file_content1)
+        audio2, sr2 = load_audio(file_content2)
+
+        crossfade_samples = int(min(sr1, sr2) * crossfade_duration)
         crossfaded_audio = crossfade(audio1, audio2, crossfade_samples)
 
-        output_filename = 'crossfaded_' + filename1
-        output_filepath = os.path.join(app.config['UPLOAD_FOLDER'], output_filename)
-        save_audio(crossfaded_audio, sr, output_filepath)
+        crossfaded_filename = 'crossfaded_' + filename1
+        crossfaded_content = save_audio(crossfaded_audio, min(sr1, sr2))
+        upload_file_to_cloudcube(crossfaded_content, crossfaded_filename, 'audio/wav')
 
-        return send_file(output_filepath, as_attachment=True)
+        crossfaded_file_url = get_cloudcube_file_url(crossfaded_filename)
+
+        # Store file metadata in MongoDB
+        file_metadata = {
+            'file1': filename1,
+            'file2': filename2,
+            'crossfaded_filename': crossfaded_filename,
+            'crossfade_duration': crossfade_duration,
+            'crossfaded_datetime': datetime.utcnow(),
+            'crossfaded_file_url': crossfaded_file_url
+        }
+        app.db.files.insert_one(file_metadata)
+
+        return jsonify({"message": "Crossfade processed and uploaded successfully", "url": crossfaded_file_url})
+
 
     @app.route('/smooth_edges', methods=['POST'])
     def smooth_audio_edges():
@@ -111,28 +138,27 @@ def init_routes(app):
         edge_duration = float(request.form.get('edge_duration', 0.5))
 
         filename = secure_filename(file.filename)
-        filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
-        file.save(filepath)
+        file_content = file.read()
+        upload_file_to_cloudcube(file_content, filename, file.content_type)
 
-        audio, sr = load_audio(filepath)
+        audio, sr = load_audio(file_content)
         edge_samples = int(sr * edge_duration)
         smoothed_audio = smooth_edges(audio, edge_samples)
 
-        output_filename = 'smoothed_' + filename
-        output_filepath = os.path.join(app.config['UPLOAD_FOLDER'], output_filename)
-        save_audio(smoothed_audio, sr, output_filepath)
+        smoothed_filename = 'smoothed_' + filename
+        smoothed_content = save_audio(smoothed_audio, sr)
+        upload_file_to_cloudcube(smoothed_content, smoothed_filename, 'audio/wav')
 
-        return send_file(output_filepath, as_attachment=True)
+        smoothed_file_url = get_cloudcube_file_url(smoothed_filename)
 
-    @app.route('/some_route', methods=['POST'])
-    def some_route():
-        file = request.files['file']  # Retrieve the uploaded file
-        # Assuming the file content is what needs to be processed and saved
-        file_content = file.read()
+        # Store file metadata in MongoDB
+        file_metadata = {
+            'original_filename': filename,
+            'smoothed_filename': smoothed_filename,
+            'edge_duration': edge_duration,
+            'smoothed_datetime': datetime.utcnow(),
+            'smoothed_file_url': smoothed_file_url
+        }
+        app.db.files.insert_one(file_metadata)
 
-        # Process and save the file content
-        processed_file_path = process_and_save_audio(file_content)
-
-        # Now send this file back
-        return send_file(processed_file_path, as_attachment=True)
-    
+        return jsonify({"message": "Edges smoothed and uploaded successfully", "url": smoothed_file_url})

@@ -1,18 +1,22 @@
 import librosa
 import soundfile as sf
 import numpy as np
-import tempfile
-from flask import current_app
 import os
+import io
 
-# Function to load an audio file
-def load_audio(file_path):
-    audio, sr = librosa.load(file_path, sr=None)  # sr=None to keep original sample rate
+# Function to load an audio file from byte content
+def load_audio(file_content):
+    # Use BytesIO to create a file-like object from the byte content
+    with io.BytesIO(file_content) as file_like_object:
+        audio, sr = librosa.load(file_like_object, sr=None)  # sr=None to keep original sample rate
     return audio, sr
 
 # Function to save an audio file
-def save_audio(audio, sample_rate, file_path):
-    sf.write(file_path, audio, sample_rate)
+def save_audio(audio, sample_rate):
+    # Save audio to a BytesIO object and return its content
+    with io.BytesIO() as buffer:
+        sf.write(buffer, audio, sample_rate, format='wav')
+        return buffer.getvalue()
 
 # Funtion to apply Crossfade between two audio segments
 def crossfade(audio1, audio2, crossfade_samples):
@@ -32,14 +36,12 @@ def smooth_edges(audio, edge_samples):
     return audio
 
 # Function to convert an audio file format
-def convert_audio_format(input_path, output_format):
-    audio, sr = librosa.load(input_path, sr=None)  # sr=None to keep original sample rate
-    output_path = os.path.splitext(input_path)[0] + '.' + output_format
-    sf.write(output_path, audio, sr, format=output_format)
-    return output_path
+def convert_audio_format(file_content, output_format):
+    # First, read the audio data from the file content
+    audio, sr = librosa.load(io.BytesIO(file_content), sr=None)
 
-# Function to process and save the audio file to temp_file
-def process_and_save_audio(input_audio):
-    with tempfile.NamedTemporaryFile(delete=False, dir=current_app.config['UPLOAD_FOLDER']) as temp_file:
-        temp_file.write(input_audio)
-        return temp_file.name
+    # Then, use a buffer to save the audio in the desired format
+    with io.BytesIO() as buffer:
+        sf.write(buffer, audio, sr, format=output_format)   # Adjust this part to handle different formats correctly
+        buffer.seek(0)  # Rewind to the beginning of the buffer
+        return buffer.read()
