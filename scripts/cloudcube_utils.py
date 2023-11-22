@@ -21,7 +21,7 @@ def get_cloudcube_file_url(filename):
 
     s3_client = boto3.client('s3')
     file_url = s3_client.generate_presigned_url('get_object',
-                                               Params={'Bucket': bucket_name,
-                                                       'Key': f"{parsed_url.path[1:]}/{filename}"},
-                                               ExpiresIn=3600)  #available for 1h
+                                                Params={'Bucket': bucket_name,
+                                                        'Key': f"{parsed_url.path[1:]}/{filename}"},
+                                                ExpiresIn=3600)  #available for 1h
     return file_url
