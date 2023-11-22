@@ -1,6 +1,7 @@
 from flask import render_template, request, send_from_directory, jsonify, redirect, send_file, url_for
 from werkzeug.utils import secure_filename  # Import secure_filename
 from scripts.audio_processing import load_audio, save_audio, crossfade, smooth_edges, convert_audio_format, process_and_save_audio
+from scripts.cloudcube_utils import upload_file_to_cloudcube, get_cloudcube_file_url
 from datetime import datetime
 import gridfs
 import os
@@ -40,10 +41,10 @@ def init_routes(app):
         processed_filepath = os.path.join(app.config['UPLOAD_FOLDER'], processed_filename)
         save_audio(processed_audio, sr, processed_filepath)
 
-        # Store the processed file in GridFS
-        fs = gridfs.GridFS(app.db)
-        with open(processed_filepath, 'rb') as processed_file:
-            file_id = fs.put(processed_file, filename=processed_filename)
+        # After saving the file locally
+        with open(filepath, 'rb') as file:
+            file_content = file.read()
+            upload_file_to_cloudcube(file_content, filename, file.content_type)
         
         # Store file metadata in MongoDB
         file_metadata = {
