@@ -6,7 +6,11 @@ def upload_file_to_cloudcube(file_stream, filename, content_type):
     parsed_url = urlparse(os.environ.get('CLOUDCUBE_URL'))
     bucket_name = parsed_url.netloc.split('.')[0]
 
-    s3_client = boto3.client('s3')
+    s3_client = boto3.client(
+        's3',
+        aws_access_key_id=os.environ.get('CLOUDCUBE_ACCESS_KEY_ID'),
+        aws_secret_access_key=os.environ.get('CLOUDCUBE_SECRET_ACCESS_KEY')
+    )
 
     s3_client.put_object(
         Bucket=bucket_name,
