@@ -58,9 +58,7 @@ def init_routes(app):
             # If no processing, return original file URL
             processed_file_content = file_content
             processed_file_url = file_url
-            return jsonify({"message": "File uploaded successfully! No action was taken!", "url": file_url})
-        
-        return jsonify({"message": "File processed and uploaded successfully", "url": processed_file_url})
+            return jsonify({"message": "File uploaded successfully! No action was taken!", "url": file_url})       
 
         # Upload processed file to Cloudcube & Retrieve URL
         upload_file_to_cloudcube(processed_file_content, processed_filename, f'audio')
@@ -77,7 +75,10 @@ def init_routes(app):
         }
         app.db.files.insert_one(file_metadata)
 
-        return jsonify({"message": "File processed and uploaded successfully", "url": processed_file_url})
+        # return jsonify({"message": "File processed and uploaded successfully", "url": processed_file_url})
+        
+        # Return an HTML response with a download link
+        return render_template('download.html', file_url=processed_file_url)
 
 
     @app.route('/convert', methods=['POST'])
