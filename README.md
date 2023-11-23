@@ -29,5 +29,6 @@ Deployment is handled via Heroku, a popular cloud platform. Heroku integrates se
 
 ## Future Scope (ToDOs)
 - Expanded Audio Processing Features: Plans to include more complex audio processing capabilities.
+- Include Image Processing Functionalities: Planning to include image processing functionalities, such as filtering, shaping, resizing etc.
 - User Interface Enhancements: Continuous improvements for a more interactive and user-friendly experience.
 - Performance Optimization: Ongoing efforts to enhance the efficiency and speed of audio processing.
