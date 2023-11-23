@@ -10,19 +10,19 @@ This project presents a web-based application designed for audio processing. It 
 - Download Processed Files: Users can download the processed audio files through generated links.
 
 ## Technologies and Tools Used
-- ##### Flask: A lightweight WSGI web application framework in Python, used to create the web server and handle HTTP requests.
-- ##### MongoDB: A NoSQL database used for storing metadata about the audio files and processing details.
-- ##### Cloudcube: An AWS S3-based storage solution integrated into the app for storing audio files, both original and processed.
-- ##### Librosa and Soundfile: Python libraries used for audio processing tasks like format conversion, crossfade, and smoothing edges.
-- #### Heroku: A cloud platform used to deploy and host the web application, offering seamless integration with GitHub for continuous deployment.
+- Flask: A lightweight WSGI web application framework in Python, used to create the web server and handle HTTP requests.
+- MongoDB: A NoSQL database used for storing metadata about the audio files and processing details.
+- Cloudcube: An AWS S3-based storage solution integrated into the app for storing audio files, both original and processed.
+- Librosa and Soundfile: Python libraries used for audio processing tasks like format conversion, crossfade, and smoothing edges.
+- Heroku: A cloud platform used to deploy and host the web application, offering seamless integration with GitHub for continuous deployment.
 
 ## How It Works
-- ####Upload: Users upload an audio file, which is then stored in Cloudcube.
-- ####Process: Users select an audio processing action and, if necessary, configure additional parameters.
-- ####Storage and Metadata: The processed file is stored back in Cloudcube, and metadata about the processing is saved in MongoDB.
-- ####Download: Users receive a link to download the processed audio file.
+- Upload: Users upload an audio file, which is then stored in Cloudcube.
+- Process: Users select an audio processing action and, if necessary, configure additional parameters.
+- Storage and Metadata: The processed file is stored back in Cloudcube, and metadata about the processing is saved in MongoDB.
+- Download: Users receive a link to download the processed audio file.
 
 ## Future Scope (ToDOs)
-- ####Expanded Audio Processing Features: Plans to include more complex audio processing capabilities.
-- ####User Interface Enhancements: Continuous improvements for a more interactive and user-friendly experience.
-- ####Performance Optimization: Ongoing efforts to enhance the efficiency and speed of audio processing.
+- Expanded Audio Processing Features: Plans to include more complex audio processing capabilities.
+- User Interface Enhancements: Continuous improvements for a more interactive and user-friendly experience.
+- Performance Optimization: Ongoing efforts to enhance the efficiency and speed of audio processing.
