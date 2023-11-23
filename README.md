@@ -4,10 +4,10 @@
 This project presents a web-based application designed for audio processing. It offers users the ability to upload audio files, apply various audio processing techniques, and download the processed output. The application is built with a focus on ease of use, allowing users to effortlessly transform their audio files through an intuitive web interface.
 
 ## Key Features
-- ##### Audio File Upload: Users can upload audio files directly to the cloud for processing.
-- ##### Processing Options: Includes functionalities like crossfading between two audio tracks, smoothing audio edges, and converting audio formats.
-- ##### Cloud-Based Storage: Utilizes Cloudcube, an AWS S3-based add-on, for robust and scalable storage of audio files.
-- ##### Download Processed Files: Users can download the processed audio files through generated links.
+- Audio File Upload: Users can upload audio files directly to the cloud for processing.
+- Processing Options: Includes functionalities like crossfading between two audio tracks, smoothing audio edges, and converting audio formats.
+- Cloud-Based Storage: Utilizes Cloudcube, an AWS S3-based add-on, for robust and scalable storage of audio files.
+- Download Processed Files: Users can download the processed audio files through generated links.
 
 ## Technologies and Tools Used
 - ##### Flask: A lightweight WSGI web application framework in Python, used to create the web server and handle HTTP requests.
