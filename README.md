@@ -1,4 +1,4 @@
-# AudioVisualLab: Web-Based Audio Processing Application
+# AudioVisualLab: Web-Based Audio Processing Application  [AudioVisualLab Web-app](https://audio-visual-lab-aa6ac17b6bff.herokuapp.com/upload)
 
 ## Project Overview
 This project presents a web-based application designed for audio processing. It offers users the ability to upload audio files, apply various audio processing techniques, and download the processed output. The application is built with a focus on ease of use, allowing users to effortlessly transform their audio files through an intuitive web interface.
@@ -29,5 +29,6 @@ Deployment is handled via Heroku, a popular cloud platform. Heroku integrates se
 
 ## Future Scope (ToDOs)
 - Expanded Audio Processing Features: Plans to include more complex audio processing capabilities.
+- Include Image Processing Functionalities: Planning to include image processing functionalities, such as filtering, shaping, resizing etc.
 - User Interface Enhancements: Continuous improvements for a more interactive and user-friendly experience.
 - Performance Optimization: Ongoing efforts to enhance the efficiency and speed of audio processing.
