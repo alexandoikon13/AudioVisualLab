@@ -28,6 +28,9 @@ def init_routes(app):
         upload_file_to_cloudcube(file_content, filename, file.content_type)
         file_url = get_cloudcube_file_url(filename)
 
+        # Initialize processed_filename
+        processed_filename = filename  # Default to original filename
+
         # Process the file based on the action
         audio, sr = load_audio(file_content)
         processed_audio = None
@@ -35,20 +38,29 @@ def init_routes(app):
         if action == 'convert':
             target_format = request.form.get('format', 'wav')
             processed_audio, format_used = convert_audio_format(file_content, target_format)
-            processed_file_content = save_audio(processed_audio, sr, target_format)
+            processed_filename = os.path.splitext(filename)[0] + '.' + format_used
         elif action == 'crossfade':
-            crossfade_duration = float(request.form.get('crossfade_duration', 1.0))     #seconds crossfade
+            crossfade_duration = float(request.form.get('crossfade_duration', 1.0))  # seconds
             processed_audio = crossfade(audio, audio, int(sr * crossfade_duration))
             processed_filename = f"crossfaded_{filename}"
-            processed_file_content = save_audio(processed_audio, sr, format='wav')
         elif action == 'smooth_edges':
             edge_duration = float(request.form.get('edge_duration', 0.5))
             processed_audio = smooth_edges(audio, int(sr * edge_duration))
             processed_filename = f"smoothed_{filename}"
-            processed_file_content = save_audio(processed_audio, sr, format='wav')
+
+        # Handle cases where no processing is required
+        if processed_audio is not None:
+            processed_file_content = save_audio(processed_audio, sr)
+            # Upload processed file to Cloudcube & Retrieve URL
+            upload_file_to_cloudcube(processed_file_content, processed_filename, f'audio/{target_format if action == "convert" else "wav"}')
+            processed_file_url = get_cloudcube_file_url(processed_filename)
         else:
-            # If no action, return original file URL
+            # If no processing, return original file URL
+            processed_file_content = file_content
+            processed_file_url = file_url
             return jsonify({"message": "File uploaded successfully! No action was taken!", "url": file_url})
+        
+        return jsonify({"message": "File processed and uploaded successfully", "url": processed_file_url})
 
         # Upload processed file to Cloudcube & Retrieve URL
         upload_file_to_cloudcube(processed_file_content, processed_filename, f'audio')
