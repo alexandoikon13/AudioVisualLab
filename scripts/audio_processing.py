@@ -14,11 +14,16 @@ def load_audio(file_content):
 # Function to save an audio file
 def save_audio(audio, sample_rate, format='wav'):
     with io.BytesIO() as buffer:
-        # Ensure audio data is in the correct shape
-        if len(audio.shape) == 1:  # Mono audio
+        # Convert bytes to NumPy array if needed
+        if isinstance(audio, bytes):
+            audio = np.frombuffer(audio, dtype=np.float32)
+
+        # Handle mono audio
+        if audio.ndim == 1:
             audio = np.expand_dims(audio, axis=-1)
-        # Save audio to a BytesIO object and return its content
+
         sf.write(buffer, audio, sample_rate, format=format)
+        buffer.seek(0)
         return buffer.getvalue()
 
 

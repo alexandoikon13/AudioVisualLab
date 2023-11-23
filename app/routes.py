@@ -40,18 +40,18 @@ def init_routes(app):
             crossfade_duration = float(request.form.get('crossfade_duration', 1.0))     #seconds crossfade
             processed_audio = crossfade(audio, audio, int(sr * crossfade_duration))
             processed_filename = f"crossfaded_{filename}"
-            processed_file_content = save_audio(processed_audio, sr, format='mp3')
+            processed_file_content = save_audio(processed_audio, sr, format='wav')
         elif action == 'smooth_edges':
             edge_duration = float(request.form.get('edge_duration', 0.5))
             processed_audio = smooth_edges(audio, int(sr * edge_duration))
             processed_filename = f"smoothed_{filename}"
-            processed_file_content = save_audio(processed_audio, sr, format='mp3')
+            processed_file_content = save_audio(processed_audio, sr, format='wav')
         else:
             # If no action, return original file URL
             return jsonify({"message": "File uploaded successfully! No action was taken!", "url": file_url})
 
         # Upload processed file to Cloudcube & Retrieve URL
-        upload_file_to_cloudcube(processed_file_content, processed_filename, f'audio/{target_format}')
+        upload_file_to_cloudcube(processed_file_content, processed_filename, f'audio')
         processed_file_url = get_cloudcube_file_url(processed_filename)
 
         # Store file metadata in MongoDB
@@ -84,7 +84,7 @@ def init_routes(app):
         converted_filename = os.path.splitext(filename)[0] + '.' + format_used
 
         # Upload converted file to Cloudcube
-        upload_file_to_cloudcube(converted_content, converted_filename, 'audio/' + format_used)  # Adjust MIME type accordingly
+        upload_file_to_cloudcube(converted_content, converted_filename, 'audio')  # Adjust MIME type accordingly
         converted_file_url = get_cloudcube_file_url(converted_filename)
 
         # Store file metadata in MongoDB
@@ -123,7 +123,7 @@ def init_routes(app):
 
         crossfaded_filename = 'crossfaded_' + filename1
         crossfaded_content = save_audio(crossfaded_audio, min(sr1, sr2))
-        upload_file_to_cloudcube(crossfaded_content, crossfaded_filename, 'audio/wav')
+        upload_file_to_cloudcube(crossfaded_content, crossfaded_filename, 'audio')
 
         crossfaded_file_url = get_cloudcube_file_url(crossfaded_filename)
 
@@ -156,7 +156,7 @@ def init_routes(app):
 
         smoothed_filename = 'smoothed_' + filename
         smoothed_content = save_audio(smoothed_audio, sr)
-        upload_file_to_cloudcube(smoothed_content, smoothed_filename, 'audio/wav')
+        upload_file_to_cloudcube(smoothed_content, smoothed_filename, 'audio')
 
         smoothed_file_url = get_cloudcube_file_url(smoothed_filename)
 
