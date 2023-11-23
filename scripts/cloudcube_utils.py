@@ -32,5 +32,5 @@ def get_cloudcube_file_url(filename):
     file_url = s3_client.generate_presigned_url('get_object',
                                                 Params={'Bucket': bucket_name,
                                                         'Key': f"{parsed_url.path[1:]}/{filename}"},
-                                                ExpiresIn=3600)  #available for 1h
+                                                ExpiresIn=300)  #available for 5 minutes
     return file_url
