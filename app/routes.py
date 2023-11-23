@@ -107,7 +107,8 @@ def init_routes(app):
         }
         app.db.files.insert_one(file_metadata)
 
-        return jsonify({"message": "File converted and uploaded successfully", "url": converted_file_url})
+        # Return an HTML response with a download link
+        return render_template('download.html', file_url=converted_file_url)
 
 
     @app.route('/crossfade', methods=['POST'])
@@ -147,7 +148,8 @@ def init_routes(app):
         }
         app.db.files.insert_one(file_metadata)
 
-        return jsonify({"message": "Crossfade processed and uploaded successfully", "url": crossfaded_file_url})
+        # Return an HTML response with a download link
+        return render_template('download.html', file_url=crossfaded_file_url)
 
 
     @app.route('/smooth_edges', methods=['POST'])
@@ -179,4 +181,5 @@ def init_routes(app):
         }
         app.db.files.insert_one(file_metadata)
 
-        return jsonify({"message": "Edges smoothed and uploaded successfully", "url": smoothed_file_url})
+        # Return an HTML response with a download link
+        return render_template('download.html', file_url=smoothed_file_url)
