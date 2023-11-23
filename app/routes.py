@@ -60,10 +60,6 @@ def init_routes(app):
             processed_file_url = file_url
             return jsonify({"message": "File uploaded successfully! No action was taken!", "url": file_url})       
 
-        # Upload processed file to Cloudcube & Retrieve URL
-        upload_file_to_cloudcube(processed_file_content, processed_filename, f'audio')
-        processed_file_url = get_cloudcube_file_url(processed_filename)
-
         # Store file metadata in MongoDB
         file_metadata = {
             'original_filename': filename,
@@ -76,7 +72,7 @@ def init_routes(app):
         app.db.files.insert_one(file_metadata)
 
         # return jsonify({"message": "File processed and uploaded successfully", "url": processed_file_url})
-        
+
         # Return an HTML response with a download link
         return render_template('download.html', file_url=processed_file_url)
 
