@@ -1,4 +1,4 @@
-# AudioVisualLab
+# AudioVisualLab: Web-Based Audio Processing Application
 
 ## Project Overview
 This project presents a web-based application designed for audio processing. It offers users the ability to upload audio files, apply various audio processing techniques, and download the processed output. The application is built with a focus on ease of use, allowing users to effortlessly transform their audio files through an intuitive web interface.
